@@ -3,7 +3,7 @@ module Jekyll
   class Site
     attr_accessor :config, :layouts, :posts, :collated_posts, :categories, :tags
     attr_accessor :source, :dest, :lsi, :pygments, :pygments_cache, :permalink_style,
-                  :sass, :post_defaults
+                  :sass, :post_defaults, :exclude
 
     # Initialize the site
     #   +config+ is a Hash containing site configurations details
@@ -19,6 +19,7 @@ module Jekyll
       self.pygments_cache  = config['pygments_cache']
       self.permalink_style = config['permalink'].to_sym
       self.post_defaults   = config['post_defaults'] || {}
+      self.exclude         = config['exclude'] || []
 
       self.reset
       self.setup
@@ -290,11 +291,9 @@ module Jekyll
     def filter_entries(entries)
       entries = entries.reject do |e|
         unless ['_posts', '.htaccess'].include?(e)
-          # Reject backup/hidden
-          ['.', '_', '#'].include?(e[0..0]) or e[-1..-1] == '~'
+          ['.', '_', '#'].include?(e[0..0]) || e[-1..-1] == '~' || self.exclude.include?(e)
         end
       end
     end
-
   end
 end
